@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<tablero>
+    <calle nombre = "Nunca me escuchas. Y yo a ti." precio = "200">
+        <p_edificacion>500</p_edificacion>
+        <f_revalorizacion>0.14</f_revalorizacion>
+        <pb_alquiler>70</pb_alquiler>
+        <pb_hipoteca>290</pb_hipoteca>
+    </calle>
+
+    <calle nombre = "Me siento solo, sentarse es fácil." precio = "190">
+        <p_edificacion>450</p_edificacion>
+        <f_revalorizacion>0.15</f_revalorizacion>
+        <pb_alquiler>60</pb_alquiler>
+        <pb_hipoteca>320</pb_hipoteca>
+    </calle>
+
+    <sorpresa></sorpresa>
+
+    <calle nombre = " Van 3 y con Harrison Four." precio = "220">
+        <p_edificacion>400</p_edificacion>
+        <f_revalorizacion>0.16</f_revalorizacion>
+        <pb_alquiler>50</pb_alquiler>
+        <pb_hipoteca>280</pb_hipoteca>
+    </calle>
+
+    <carcel></carcel>
+
+    <calle nombre = "Va un barco al muelle y rebota." precio = "89">
+        <p_edificacion>350</p_edificacion>
+        <f_revalorizacion>0.17</f_revalorizacion>
+        <pb_alquiler>55</pb_alquiler>
+        <pb_hipoteca>275</pb_hipoteca>
+    </calle>
+
+    <calle nombre = "Va un caracol y derrapa." precio = "95">
+        <p_edificacion>300</p_edificacion>
+        <f_revalorizacion>0.1</f_revalorizacion>
+        <pb_alquiler>65</pb_alquiler>
+        <pb_hipoteca>250</pb_hipoteca>
+    </calle>
+
+    <calle nombre = "No es lo mismo Kentacky Fried Chicken que three fuckin' in the kitchen." precio = "140">
+        <p_edificacion>250</p_edificacion>
+        <f_revalorizacion>0.12</f_revalorizacion>
+        <pb_alquiler>70</pb_alquiler>
+        <pb_hipoteca>424</pb_hipoteca>
+    </calle>
+
+    <calle nombre = "¿Como sube Thor a un rascacielos? En ElevaThor." precio = "300">
+        <p_edificacion>175</p_edificacion>
+        <f_revalorizacion>0.13</f_revalorizacion>
+        <pb_alquiler>75</pb_alquiler>
+        <pb_hipoteca>475</pb_hipoteca>
+    </calle>
+
+    <sorpresa></sorpresa>
+
+    <calle nombre = "Donald usa teclado y Mickey mouse." precio = "280">
+        <p_edificacion>375</p_edificacion>
+        <f_revalorizacion>0.11</f_revalorizacion>
+        <pb_alquiler>85</pb_alquiler>
+        <pb_hipoteca>425</pb_hipoteca>
+    </calle>
+
+    <parking></parking>
+
+    <calle nombre = "Va un barco de vela y se apaga." precio = "275">
+        <p_edificacion>425</p_edificacion>
+        <f_revalorizacion>0.18</f_revalorizacion>
+        <pb_alquiler>80</pb_alquiler>
+        <pb_hipoteca>300</pb_hipoteca>
+    </calle>
+
+    <calle nombre = "Una familia ocupó un terreno en Hawaii. A ver quién la desaloha." precio = "175">
+        <p_edificacion>280</p_edificacion>
+        <f_revalorizacion>0.19</f_revalorizacion>
+        <pb_alquiler>75</pb_alquiler>
+        <pb_hipoteca>275</pb_hipoteca>
+    </calle>
+
+    <impuesto coste = "300"></impuesto>
+
+    <calle nombre = "¿Quién inventó las fracciones? Enrique octavo." precio = "300">
+        <p_edificacion>330</p_edificacion>
+        <f_revalorizacion>0.2</f_revalorizacion>
+        <pb_alquiler>67</pb_alquiler>
+        <pb_hipoteca>375</pb_hipoteca>
+    </calle>
+
+    <sorpresa></sorpresa>
+
+    <juez></juez>
+
+    <calle nombre = "Pues me he comprado un coche color pistacho y no lo puedo abrir." precio = "200">
+        <p_edificacion>420</p_edificacion>
+        <f_revalorizacion>0.21</f_revalorizacion>
+        <pb_alquiler>45</pb_alquiler>
+        <pb_hipoteca>350</pb_hipoteca>
+    </calle>
+
+    <calle nombre = "¿Que guarda Darth Vader en su nevera? Helado oscuro." precio = "130">
+        <p_edificacion>390</p_edificacion>
+        <f_revalorizacion>0.14</f_revalorizacion>
+        <pb_alquiler>48</pb_alquiler>
+        <pb_hipoteca>425</pb_hipoteca>
+    </calle>
+
+    <calle nombre = "No es lo mismo un tuberculoso que ver tu culo hermoso." precio = "120">
+        <p_edificacion>290</p_edificacion>
+        <f_revalorizacion>0.16</f_revalorizacion>
+        <pb_alquiler>59</pb_alquiler>
+        <pb_hipoteca>455</pb_hipoteca>
+    </calle>
+
+</tablero>

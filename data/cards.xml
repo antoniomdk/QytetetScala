@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mazo [
+        <!ELEMENT mazo (sorpresa+)>
+        <!ELEMENT sorpresa (valor, texto)>
+        <!ATTLIST sorpresa tipo CDATA #REQUIRED>
+        <!ELEMENT valor (#PCDATA)>
+        <!ELEMENT texto (#PCDATA)>
+        ]>
+
+<mazo>
+    <sorpresa tipo="SALIRCARCEL">
+        <valor>0</valor>
+        <texto>Un fan anónimo ha pagado tu fianza. Sales de la cárcel</texto>
+    </sorpresa>
+
+    <sorpresa tipo="IRACASILLA">
+        <valor>0</valor>
+        <texto>¿A donde crees que ibas? Retrocede a la casilla de salida sin cobrar.</texto>
+    </sorpresa>
+
+    <sorpresa tipo="IRACASILLA">
+        <valor>5</valor>
+        <texto>¿No te gustan los numeros pares? Ve a la casilla numero 5.</texto>
+    </sorpresa>
+
+    <sorpresa tipo="IRACASILLA">
+        <valor>6</valor>
+        <texto>Te pillaron contando un chiste malo, vas a la carcel.</texto>
+    </sorpresa>
+
+    <sorpresa tipo="PORJUGADOR">
+        <valor>-50</valor>
+        <texto>Hoy te sientes realmente generoso, paga 50 a cada jugador.</texto>
+    </sorpresa>
+
+    <sorpresa tipo="PORJUGADOR">
+        <valor>45</valor>
+        <texto>Te has postulado para gobernador, cobra 45 euros de cada jugador.</texto>
+    </sorpresa>
+
+    <sorpresa tipo="PAGARCOBRAR">
+        <valor>-50</valor>
+        <texto>Te pillaron robando, paga 50 euros de multa.</texto>
+    </sorpresa>
+
+    <sorpresa tipo="PAGARCOBRAR">
+        <valor>120</valor>
+        <texto>Hoy es tu dia de suerte, cobra 120 euros y comprate algo bonito.</texto>
+    </sorpresa>
+
+    <sorpresa tipo="PORCASAHOTEL">
+        <valor>-25</valor>
+        <texto>Has sido multado por construcciones inseguras, paga 25 euros por cada casa.</texto>
+    </sorpresa>
+
+    <sorpresa tipo="PORCASAHOTEL">
+        <valor>100</valor>
+        <texto>Necesitas dinero para mantenimiento, aqui tienes una ayuda: cobra 100 por cada hotel.</texto>
+    </sorpresa>
+
+    <sorpresa tipo="CONVERTIRME">
+        <valor>-3000</valor>
+        <texto> Te puedes convertir en especulador. Enhorabuena.</texto>
+    </sorpresa>
+
+    <sorpresa tipo="CONVERTIRME">
+        <valor>5000</valor>
+        <texto> Te puedes convertir en especulador. Enhorabuena.</texto>
+    </sorpresa>
+</mazo>
