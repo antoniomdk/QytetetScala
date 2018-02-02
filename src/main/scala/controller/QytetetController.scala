@@ -19,15 +19,14 @@ object QytetetController {
   val MSG_BUY = "Buy property title?"
   val MSG_ACCEPTED_PURCHASE = "Congratulations, title acquired"
   val MSG_REJECTED_PURCHASE = "Purchase failed"
-  val MSG_ESCAPE = "Sales de la carcel."
-  val MSG_NO_ESCAPE = "NO sales de la carcel."
+  val MSG_ESCAPE = "Player released"
+  val MSG_NO_ESCAPE = "Player NOT released"
   val MSG_MANAGEMENT = "Perform any management"
   val MSG_MANAGEMENT_TITLE = "Select"
   val MSG_SELECT_PROPS = "Choose an option"
   val MSG_MANAGEMENT_PERFORMED = "Management performed successfully"
   val MSG_MANAGEMENT_NOT_PERFORMED = "Management failed"
   val MSG_EXIT = "Game over."
-  val MSG_RANKING = "Ranking"
   val MSG_ESCAPE_OPTIONS = Seq("Rolling die", "Paying freedom")
   val MSG_MANAGEMENT_OPTIONS = Seq(
     "Build house", "Build hotel", "Sell property", "Mortgage", "Cancel Mortgage")
@@ -37,13 +36,37 @@ object QytetetController {
 
   def changeState[A](change: State[Game, A]): A = {
     val (s, v) = change.run(state)
-    changeState(s)
+    updateState(s)
+    checkGameOver()
     v
   }
 
-  def changeState(s: Game): Unit = {
+  def updateState(s: Game): Unit = {
     state = s
     qytetetView.update(state)
+  }
+
+  def checkGameOver(): Unit = {
+    if (state.player.balance < 0) {
+      val ranking = Qytetet.ranking(state)
+        .zipWithIndex
+        .map { case ((p, c), i) => s"${i + 1}. ${p.name}: $c\n" }
+        .fold("") { _+_ }
+      showMessage(ranking, MSG_EXIT)
+      System.exit(0)
+    }
+  }
+
+  def getConfirmation(msg: String): Boolean =
+    Dialog.showConfirmation(mainFrame, msg) == Dialog.Result.Yes
+
+  def showMessage(msg: String, title: String = ""): Unit =
+    Dialog.showMessage(mainFrame, msg, title)
+
+  def getOption(msg: String, entries: Seq[Any]): Int = {
+    val e = (entries map { _.asInstanceOf[AnyRef] }).toArray
+    JOptionPane.showOptionDialog(mainFrame.peer, msg, "", JOptionPane.DEFAULT_OPTION,
+      JOptionPane.QUESTION_MESSAGE, null, e, e(0))
   }
 
   implicit object VisualDie extends Die {
@@ -110,38 +133,15 @@ object QytetetController {
       buyPropertyButton.enabled = false
     }
 
-    def getConfirmation(msg: String): Boolean =
-      Dialog.showConfirmation(this, msg) == Dialog.Result.Yes
-
-    def showMessage(msg: String): Unit = Dialog.showMessage(this, msg)
-
-    def getOption(msg: String, entries: Seq[Any]): Int = {
-      val e = (entries map { _.asInstanceOf[AnyRef] }).toArray
-      JOptionPane.showOptionDialog(this.peer, msg, "", JOptionPane.DEFAULT_OPTION,
-        JOptionPane.QUESTION_MESSAGE, null, e, e(0))
-    }
-
-    def checkGameOver(): Unit = {
-      if (state.player.balance < 0) {
-        val ranking = Qytetet.ranking(state).zipWithIndex.map {
-          case ((p, c), i) => s"${i + 1}. ${p.name}: $c"
-        }.fold("") { _ + "\n" + _ }
-
-        showMessage(ranking)
-
-        System.exit(0)
-      }
-    }
-
     def nextPlayer(): Unit = {
-      changeState(Qytetet.nextPlayer)
-      resetButtons()
-
       lazy val escapePrison = getOption("", MSG_ESCAPE_OPTIONS) match {
         case 0 => Qytetet.tryEscapePrison(RollingDie)
         case 1 => Qytetet.tryEscapePrison(PayingFreedom)
         case _ => Qytetet.noChangeBoolean
       }
+
+      changeState(Qytetet.nextPlayer)
+      resetButtons()
 
       if (state.player.imprisoned) {
         val free = changeState(escapePrison)
@@ -188,7 +188,6 @@ object QytetetController {
       case ButtonClicked(`playButton`) => {
         playButton.enabled = false
         changeState(Qytetet.play)
-        checkGameOver()
         updateButtons()
       }
 
@@ -197,7 +196,6 @@ object QytetetController {
         val card = state.currentCard
         val change = card.fold(Qytetet.noChangeUnit) { Qytetet.applyCard }
         changeState(change)
-        checkGameOver()
         card match {
           case Some(c) if c.isInstanceOf[GoToSquare] => updateButtons()
           case _ => {
@@ -213,7 +211,6 @@ object QytetetController {
           val msg = if (done) MSG_ACCEPTED_PURCHASE else MSG_REJECTED_PURCHASE
           showMessage(msg)
           updateButtons()
-          checkGameOver()
         }
       }
 
@@ -238,7 +235,6 @@ object QytetetController {
           showMessage(msg)
           if (done) {
             updateButtons()
-            checkGameOver()
             propertyManagementButton.enabled = false
           }
         }
@@ -250,6 +246,6 @@ object QytetetController {
     mainFrame.visible = true
     val nameList = new PlayerListView(mainFrame.peer, true).getNameList()
     val initialState = Qytetet.initialState(JavaConverters.asScalaBuffer(nameList))
-    initialState.fold(System.exit(1)) { changeState }
+    initialState.fold(System.exit(1)) { updateState }
   }
 }

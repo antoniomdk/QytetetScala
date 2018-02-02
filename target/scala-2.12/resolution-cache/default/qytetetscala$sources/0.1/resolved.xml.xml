@@ -4,7 +4,7 @@
 		module="qytetetscala$sources"
 		revision="0.1"
 		status="integration"
-		publication="20180201230201"
+		publication="20180202001032"
 	/>
 	<configurations>
 		<conf name="compile" visibility="public" description=""/>

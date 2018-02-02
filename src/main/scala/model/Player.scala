@@ -25,7 +25,7 @@ sealed trait IPlayer {
       case StartSquare                          => Qytetet.InitialBalance
       case TaxSquare(_, tax)                    => -tax
       case StreetSquare(_, _, title, Some(p), _, _)
-        if !p.imprisoned                        => title.rentBase
+        if !p.imprisoned && !p.equals(this)     => -title.rentBase
       case _                                    => 0
     }
     newState(currentSquare = square.position, balance = balance + b)
@@ -39,7 +39,7 @@ sealed trait IPlayer {
   }
 
   def returnFreedomCard: Option[(Card, IPlayer)] =
-    freedomCard map { c => c -> newState(freedomCard = None) }
+    freedomCard map { _ -> newState(freedomCard = None) }
 
   def convert(bail: Int): Speculator = this match {
     case Player(n, b, p, fc, cs, i) => Speculator(n, b, p, fc, cs, i, bail)
@@ -131,7 +131,7 @@ object IPlayerStats {
 
       if (square.title.mortgaged) total - square.title.mortgageBase else total
     }
-    player.balance + properties.map(computePropertyCapital).foldLeft(0)(_ + _)
+    player.balance + properties.map(computePropertyCapital).sum
   }
 
   def currentSquare(implicit state: Game, player: IPlayer): Square =
@@ -143,7 +143,7 @@ object IPlayerStats {
     }.toList
 
   def countHouseHotels(implicit state: Game, player: IPlayer): Int =
-    properties.foldLeft(0) { (sum, s) => sum + s.hotels + s.houses }
+    properties.map { p => p.hotels + p.houses }.sum
 
   def mortgagedProperties(mortgaged: Boolean)
                          (implicit state: Game, player: IPlayer): List[StreetSquare] =
