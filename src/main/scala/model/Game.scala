@@ -63,4 +63,9 @@ object GameLens {
     (game, value) => game.copy(playerList = value),
     _.playerList
   )
+
+  val die: Lens[Game, Int] = Lens.lensu(
+    (game, value) => game.copy(die = value),
+    _.die
+  )
 }

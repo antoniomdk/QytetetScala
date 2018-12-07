@@ -41,7 +41,7 @@ object Board {
                                 index: Int): Option[StreetSquare] = {
     val name = node \@ "nombre"
     val result = for {
-      c  <- Try((node \@ "precio").toInt)
+      c <- Try((node \@ "precio").toInt)
       pe <- Try((node \ "p_edificacion").text.toInt)
       fv <- Try((node \ "f_revalorizacion").text.toFloat)
       pa <- Try((node \ "pb_alquiler").text.toInt)

@@ -67,7 +67,8 @@ class QytetetTest extends FunSuite {
   test("testBuyProperty") {}
 
   test("testJailPlayer") {
-    val game = Qytetet.initialState(List("Player 1", "Player 2", "Player 3")).get
+    val game =
+      Qytetet.initialState(List("Player 1", "Player 2", "Player 3")).get
     val c = Some(EscapePrison(""))
     val g1 = GameLens.player.set(game, game.player.newState(freedomCard = c))
     val r1 = Qytetet.jailPlayer.exec(g1)

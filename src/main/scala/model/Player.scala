@@ -23,10 +23,12 @@ sealed trait IPlayer {
       case StartSquare       => Qytetet.InitialBalance
       case TaxSquare(_, tax) => -tax
       case StreetSquare(_, _, title, Some(player), _, _)
-          if !player.imprisoned && !player.equals(this) => -title.rentBase
+          if !player.imprisoned && !player.equals(this) =>
+        -title.rentBase
       case _ => 0
     }
-    newState(currentSquare = square.position, balance = balance + balanceAddition)
+    newState(currentSquare = square.position,
+             balance = balance + balanceAddition)
   }
 
   def addBalance(quantity: Int): IPlayer =
@@ -101,7 +103,7 @@ case class Player(name: String,
 
 case class Speculator(name: String,
                       balance: Int = 0,
-                      properties: List[Int]= Nil,
+                      properties: List[Int] = Nil,
                       freedomCard: Option[EscapePrison] = None,
                       currentSquare: Int = StartSquare.position,
                       imprisoned: Boolean = false,
@@ -140,6 +142,7 @@ object IPlayerStats {
       player: IPlayer): List[StreetSquare] =
     properties filter { _.title.mortgaged == mortgaged }
 
-  def hasProperty(propertyIndex: Int)(implicit state: Game, player: IPlayer): Boolean =
+  def hasProperty(propertyIndex: Int)(implicit state: Game,
+                                      player: IPlayer): Boolean =
     properties(state, player).contains(propertyIndex)
 }
