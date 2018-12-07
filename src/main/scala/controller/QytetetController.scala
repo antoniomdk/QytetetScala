@@ -1,15 +1,21 @@
 package controller
 
 import model._
-import view.{ DieView, PlayerListView, QytetetView }
+import view.{DieView, PlayerListView, QytetetView}
 import scalaz.State
 import scala.collection.JavaConverters
-import scala.swing.BorderPanel.Position.{ South, Center }
+import scala.swing.BorderPanel.Position.{South, Center}
 import javax.swing.JOptionPane
 import scala.swing.event.ButtonClicked
 import scala.swing.{
-  MainFrame, Dimension, Button, BorderPanel,
-  FlowPanel, Dialog, Component, GridPanel
+  MainFrame,
+  Dimension,
+  Button,
+  BorderPanel,
+  FlowPanel,
+  Dialog,
+  Component,
+  GridPanel
 }
 
 object QytetetController {
@@ -26,10 +32,13 @@ object QytetetController {
   val MSG_SELECT_PROPS = "Choose an option"
   val MSG_MANAGEMENT_PERFORMED = "Management performed successfully"
   val MSG_MANAGEMENT_NOT_PERFORMED = "Management failed"
-  val MSG_EXIT = "Game over."
+  val MSG_EXIT = "Game over"
   val MSG_ESCAPE_OPTIONS = Seq("Rolling die", "Paying freedom")
-  val MSG_MANAGEMENT_OPTIONS = Seq(
-    "Build house", "Build hotel", "Sell property", "Mortgage", "Cancel Mortgage")
+  val MSG_MANAGEMENT_OPTIONS = Seq("Build house",
+                                   "Build hotel",
+                                   "Sell property",
+                                   "Mortgage",
+                                   "Cancel Mortgage")
 
   val qytetetView = new QytetetView()
   implicit var state: Game = _
@@ -48,10 +57,12 @@ object QytetetController {
 
   def checkGameOver(): Unit = {
     if (state.player.balance < 0) {
-      val ranking = Qytetet.ranking(state)
+      val ranking = Qytetet
+        .ranking(state)
+        .view
         .zipWithIndex
         .map { case ((p, c), i) => s"${i + 1}. ${p.name}: $c\n" }
-        .fold("") { _+_ }
+        .fold("") { _ + _ }
       showMessage(ranking, MSG_EXIT)
       System.exit(0)
     }
@@ -65,8 +76,14 @@ object QytetetController {
 
   def getOption(msg: String, entries: Seq[Any]): Int = {
     val e = (entries map { _.asInstanceOf[AnyRef] }).toArray
-    JOptionPane.showOptionDialog(mainFrame.peer, msg, "", JOptionPane.DEFAULT_OPTION,
-      JOptionPane.QUESTION_MESSAGE, null, e, e(0))
+    JOptionPane.showOptionDialog(mainFrame.peer,
+                                 msg,
+                                 "",
+                                 JOptionPane.DEFAULT_OPTION,
+                                 JOptionPane.QUESTION_MESSAGE,
+                                 null,
+                                 e,
+                                 e(0))
   }
 
   implicit object VisualDie extends Die {
@@ -148,8 +165,7 @@ object QytetetController {
         if (!free) {
           showMessage(MSG_NO_ESCAPE)
           nextPlayer()
-        }
-        else {
+        } else {
           showMessage(MSG_ESCAPE)
         }
       }
@@ -161,9 +177,9 @@ object QytetetController {
       val square = IPlayerStats.currentSquare
 
       square match {
-        case _: CardSquare => applyCardButton.enabled = true
+        case _: CardSquare   => applyCardButton.enabled = true
         case s: StreetSquare => buyPropertyButton.enabled = s.owner.isEmpty
-        case _ => ()
+        case _               => ()
       }
 
       square match {
@@ -218,7 +234,9 @@ object QytetetController {
         implicit val player = state.player
         val action = getOption(MSG_MANAGEMENT, MSG_MANAGEMENT_OPTIONS)
         val options = IPlayerStats.mortgagedProperties(action == 4)
-        lazy val propIndex = getOption(MSG_SELECT_PROPS, options map { _.title.name })
+        lazy val propIndex = getOption(MSG_SELECT_PROPS, options map {
+          _.title.name
+        })
         lazy val property = options(propIndex)
         lazy val change = action match {
           case 0 => Qytetet.buildHouse(property)
@@ -231,7 +249,8 @@ object QytetetController {
 
         if (options.nonEmpty && action >= 0 && propIndex >= 0) {
           val done = changeState(change)
-          val msg  = if (done) MSG_MANAGEMENT_PERFORMED else MSG_MANAGEMENT_NOT_PERFORMED
+          val msg =
+            if (done) MSG_MANAGEMENT_PERFORMED else MSG_MANAGEMENT_NOT_PERFORMED
           showMessage(msg)
           if (done) {
             updateButtons()
@@ -245,7 +264,8 @@ object QytetetController {
   def main(args: Array[String]): Unit = {
     mainFrame.visible = true
     val nameList = new PlayerListView(mainFrame.peer, true).getNameList()
-    val initialState = Qytetet.initialState(JavaConverters.asScalaBuffer(nameList))
+    val initialState =
+      Qytetet.initialState(JavaConverters.asScalaBuffer(nameList))
     initialState.fold(System.exit(1)) { updateState }
   }
 }

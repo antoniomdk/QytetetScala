@@ -1,12 +1,11 @@
 package model
 
-case class PropertyTitle(
-    name:              String,
-    rentBase:          Int,
-    revaluationFactor: Float,
-    mortgageBase:      Int,
-    edificationPrice:  Int,
-    mortgaged:         Boolean) {
+case class PropertyTitle(name: String,
+                         rentBase: Int,
+                         revaluationFactor: Float,
+                         mortgageBase: Int,
+                         edificationPrice: Int,
+                         mortgaged: Boolean) {
 
   def mortgage: Option[PropertyTitle] =
     if (!mortgaged) Some(copy(mortgaged = true)) else None

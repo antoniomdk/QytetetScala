@@ -15,26 +15,24 @@ final case object StartSquare extends Square {
 
 final case class PropertyOperation(newState: StreetSquare, cost: Int)
 
-case class StreetSquare(
-    position: Int,
-    cost:     Int,
-    title:    PropertyTitle,
-    owner:    Option[IPlayer] = None,
-    houses:   Int = 0,
-    hotels:   Int = 0) extends Square {
+case class StreetSquare(position: Int,
+                        cost: Int,
+                        title: PropertyTitle,
+                        owner: Option[IPlayer] = None,
+                        houses: Int = 0,
+                        hotels: Int = 0)
+    extends Square {
 
   val MaxHouses = 4
   val MaxHotels = 4
 
   lazy val totalPrice: Int = {
-    val p = cost + (houses + hotels) * title.edificationPrice
-    (p * (1 + title.revaluationFactor)).toInt
+    val basePrice = cost + (houses + hotels) * title.edificationPrice
+    (basePrice * (1 + title.revaluationFactor)).toInt
   }
 
-  lazy val mortgageValue : Int = {
-    val mb = title.mortgageBase
-    mb *  1 + (houses * 0.5 + hotels).toInt
-  }
+  lazy val mortgageValue: Int =
+    title.mortgageBase * (1 + (houses * 0.5 + hotels).toInt)
 
   def buildHouse(): Option[PropertyOperation] = owner match {
     case Some(p) if houses < 4 * p.speculationFactor =>
@@ -42,18 +40,21 @@ case class StreetSquare(
     case _ => None
   }
 
-  def buildHotel() : Option[PropertyOperation] = owner match {
+  def buildHotel(): Option[PropertyOperation] = owner match {
     case Some(p) if houses >= 4 && hotels < 4 * p.speculationFactor =>
       Some(PropertyOperation(copy(hotels = hotels + 1), title.edificationPrice))
     case _ => None
   }
 
   def mortgage(): Option[PropertyOperation] =
-    title.mortgage map { t => PropertyOperation(copy(title = t), -mortgageValue) }
+    title.mortgage map { t =>
+      PropertyOperation(copy(title = t), -mortgageValue)
+    }
 
-  def cancelMortgage(): Option[PropertyOperation] = title.cancelMortgage map { t =>
-    val cancelPrice = (mortgageValue * 1.1).toInt
-    PropertyOperation(copy(title = t), cancelPrice)
+  def cancelMortgage(): Option[PropertyOperation] = title.cancelMortgage map {
+    t =>
+      val cancellationPrice = (mortgageValue * 1.1).toInt
+      PropertyOperation(copy(title = t), cancellationPrice)
   }
 
   def sellProperty(): Option[PropertyOperation] = owner map { _ =>
@@ -61,9 +62,14 @@ case class StreetSquare(
     PropertyOperation(newState, totalPrice)
   }
 
-  def setOwner(player: IPlayer) : Option[StreetSquare] = owner match {
+  def setOwner(player: IPlayer): Option[StreetSquare] = owner match {
     case None => Some(copy(owner = Some(player)))
-    case _ => None
+    case _    => None
+  }
+
+  def propertyCapital(): Int = {
+    val total = cost + (houses + hotels) * title.edificationPrice
+    if (title.mortgaged) total - title.mortgageBase else total
   }
 
   override def toString: String =
@@ -76,4 +82,3 @@ case class StreetSquare(
        | $title
      """.stripMargin
 }
-
