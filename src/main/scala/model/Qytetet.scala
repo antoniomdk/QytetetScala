@@ -9,7 +9,7 @@ object Qytetet {
   val FreedomPrice = 200
   val InitialBalance = 2000
 
-  val noChangeUnit: State[Game, Unit] = modify(identity)
+  val noChangeUnit: State[Game, Unit] = modify(identity);
   val noChangeBoolean: State[Game, Boolean] = noChangeUnit.map(_ => false)
 
   val nextPlayer: State[Game, Unit] = modify[Game] { state =>
@@ -27,21 +27,17 @@ object Qytetet {
   def initialState(names: Seq[String]): Option[Game] = {
     lazy val deck = Deck.initial
     lazy val board = Board.initial
-    lazy val pList = names map { name =>
-      Player(name,
-             InitialBalance,
-             List.empty,
-             None,
-             StartSquare.position,
-             imprisoned = false)
-    }
+    lazy val playerList = names map createDefaultPlayer
     val validNameList = names.nonEmpty && names.lengthCompare(MaxPlayers) <= 0
     if (validNameList && deck.nonEmpty && board.list.nonEmpty) {
-      Some(Game(-1, 0, None, pList.toVector, deck, board))
+      Some(Game(-1, 0, None, playerList.toVector, deck, board))
     } else {
       None
     }
   }
+
+  private def createDefaultPlayer(name: String): Player =
+    Player(name, InitialBalance, List.empty, None, StartSquare.position, imprisoned = false)
 
   def applyCard(card: Card): State[Game, Unit] = {
     val stateChange = card match {
@@ -82,14 +78,15 @@ object Qytetet {
       _ <- movePlayer(card.value)
     } yield ()
 
-  def applyPerPlayerCard(card: PerPlayer): State[Game, Unit] = modify { state =>
-    val player = state.player
-    val newPlayer = player.addBalance(card.value * state.playerList.size - 1)
-    val newPlayerList = state.playerList map { p =>
+  def applyPerPlayerCard(card: PerPlayer): State[Game, Unit] = for {
+    player <- GameLens.player
+    playerList <- GameLens.playerList
+    newPlayer = player.addBalance(card.value * playerList.size - 1)
+    newPlayerList = playerList map { p =>
       if (p != player) p.addBalance(card.value) else newPlayer
     }
-    state.copy(playerList = newPlayerList)
-  }
+    _ <- GameLens.playerList := newPlayerList
+  } yield ()
 
   def movePlayer(pos: Int, relative: Boolean = false): State[Game, Unit] =
     for {
@@ -101,33 +98,30 @@ object Qytetet {
       _ <- GameLens.player := player.updatePosition(newSquare)
     } yield ()
 
-  // Players ranking sorted by capital
   def ranking(state: Game): Seq[(IPlayer, Int)] =
     state.playerList
       .map(p => p -> IPlayerStats.totalCapital(state, p))
-      .sortWith(_._2 > _._2)
+      .sortBy { case (_, totalCapital) => totalCapital }
 
-  def buyProperty: State[Game, Boolean] = {
-    def canBuy(p: IPlayer, s: StreetSquare) =
-      s.owner.isEmpty && p.balance > s.cost
+  private def playerCanBuyProperty(player: IPlayer, square: StreetSquare) =
+    square.owner.isEmpty && player.balance > square.cost
 
-    def tryBuy(p: IPlayer, s: StreetSquare, g: Game): Option[Game] = {
-      val newPlayer = p.addBalance(-s.cost).addProperty(s)
-      for {
-        newSquare <- s.setOwner(newPlayer)
-        state <- g.updateSquare(newSquare)
-        newState = GameLens.player.set(state, newPlayer)
-      } yield newState
-    }
+  private def tryBuy(player: IPlayer, square: StreetSquare, state: Game): Option[Game] = {
+    val newPlayer = player.addBalance(-square.cost).addProperty(square)
+    for {
+      newSquare <- square.setOwner(newPlayer)
+      state <- state.updateSquare(newSquare)
+      newState = GameLens.player.set(state, newPlayer)
+    } yield newState
+  }
 
-    State[Game, Boolean] { implicit state =>
-      implicit val player: IPlayer = state.player
-      IPlayerStats.currentSquare match {
-        case s: StreetSquare if canBuy(player, s) =>
-          val st = tryBuy(player, s, state)
-          st.fold(state -> false)(_ -> true)
-        case _ => state -> false
-      }
+  def buyProperty: State[Game, Boolean] = State { implicit state =>
+    implicit val player: IPlayer = state.player
+    IPlayerStats.currentSquare match {
+      case s: StreetSquare if playerCanBuyProperty(player, s) =>
+        val st = tryBuy(player, s, state)
+        st.fold(state -> false)(_ -> true)
+      case _ => state -> false
     }
   }
 
@@ -155,12 +149,12 @@ object Qytetet {
   def performPropertyOperation(
       action: => Option[PropertyOperation]): State[Game, Boolean] = State {
     state =>
-      val newState = for {
+      val maybeNewState = for {
         a <- action
         p = state.player.addBalance(-a.cost)
         s <- GameLens.player.set(state, p).updateSquare(a.newState)
       } yield s -> true
-      newState.getOrElse(state -> false)
+      maybeNewState.getOrElse(state -> false)
   }
 
   def buildHouse(square: StreetSquare): State[Game, Boolean] =
@@ -183,12 +177,11 @@ object Qytetet {
     }
   } yield ()
 
-  def tryEscapePrison(method: PrisonEscapeMethod)(
-      implicit die: Die): State[Game, Boolean] =
-    for {
+  def tryEscapePrison(method: PrisonEscapeMethod)
+                     (implicit die: Die): State[Game, Boolean] = for {
       state <- get[Game]
       player <- GameLens.player
-      (newState, result) = method match {
+      (newState, escaped) = method match {
         case PayingFreedom if player.balance > FreedomPrice =>
           val newPlayer = player.addBalance(-FreedomPrice).released
           GameLens.player.set(state, newPlayer) -> true
@@ -197,10 +190,9 @@ object Qytetet {
         case _ => state -> false
       }
       _ <- put[Game](newState)
-    } yield result
+    } yield escaped
 
-  // Jail player if does not have freedom card.
-  lazy val jailPlayer: State[Game, Boolean] = for {
+  val jailPlayer: State[Game, Boolean] = for {
     player <- GameLens.player
     board <- GameLens.board
     result <- player.returnFreedomCard match {
